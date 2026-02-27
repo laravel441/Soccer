@@ -1,5 +1,8 @@
+pydantic
+pytest
+fastapi
+uvicorn
+gunicorn
 requests
 python-dotenv
 schedule
-pydantic
-pytest
