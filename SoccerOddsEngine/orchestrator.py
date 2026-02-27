@@ -29,42 +29,42 @@ class SoccerOddsOrchestrator:
         self.api_client = FootballAPIClient()
         self.market_cache = None
 
-    def scan_markets(self):
-        """Scans multiple top markets and caches the snapshot."""
-        print(f"[{datetime.now()}] Starting morning scan...")
+    def scan_markets(self, date: str = None):
+        """Scans multiple top markets for a specific date (YYYY-MM-DD)."""
+        print(f"[{datetime.now()}] Starting scan for date: {date}...")
         
         markets = ["classic", "btts", "over_under_25"]
         all_fixtures = []
-        today_str = datetime.now().strftime("%Y-%m-%d")
+        scan_date = date if date else datetime.now().strftime("%Y-%m-%d")
         
         for market in markets:
-            fixtures = self.api_client.get_fixtures_today(federation="UEFA", market=market)
-            # Filter strictly by today's date
-            today_fixtures = [
+            fixtures = self.api_client.get_fixtures_today(federation="UEFA", market=market, date=scan_date)
+            # Filter strictly by the scan date
+            filtered_fixtures = [
                 f for f in fixtures 
-                if f.get("start_date", "").startswith(today_str)
+                if f.get("start_date", "").startswith(scan_date)
             ]
             
             # Add market tag to each fixture for identification
-            for f in today_fixtures:
+            for f in filtered_fixtures:
                 f["api_market"] = market
-            all_fixtures.extend(today_fixtures)
+            all_fixtures.extend(filtered_fixtures)
         
         self.market_cache = MarketSnapshot(
             timestamp=datetime.now().isoformat(),
             fixtures=all_fixtures
         )
-        print(f"[{datetime.now()}] Scan complete. {len(all_fixtures)} match entries found for TODAY ({today_str}) across {len(markets)} markets.")
+        print(f"[{datetime.now()}] Scan complete. {len(all_fixtures)} entries found for {scan_date}.")
 
     def filter_value_bets(self):
         """Simple model to simulate value bet filtering."""
-        # For multi-market, we take a balanced sample from each market type
         return self.market_cache.fixtures
 
-    def generate_parleys(self) -> List[Parley]:
-        """Generates 10 optimized multi-market parleys."""
-        if not self.market_cache or not self.market_cache.fixtures:
-            self.scan_markets()
+    def generate_parleys(self, date: str = None) -> List[Parley]:
+        """Generates 10 optimized parleys for a specific date."""
+        # Always re-scan if a specific date is requested or cache is empty
+        if not self.market_cache or date:
+            self.scan_markets(date=date)
 
         fixtures = self.filter_value_bets()
         if not fixtures:

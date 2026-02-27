@@ -11,12 +11,11 @@ app = FastAPI(title="Soccer Odds Engine API")
 orchestrator = SoccerOddsOrchestrator()
 
 @app.get("/api/parleys")
-async def get_parleys():
+async def get_parleys(date: str = None):
     """Trigger the morning scan and return the 10 parleys."""
     try:
-        # For simplicity, we trigger a scan every time the user requests parleys
-        # In production, this would be cached or scheduled
-        parleys = orchestrator.generate_parleys()
+        # Pass the date to the orchestrator
+        parleys = orchestrator.generate_parleys(date=date)
         return parleys
     except Exception as e:
         return JSONResponse(status_code=500, content={"error": str(e)})

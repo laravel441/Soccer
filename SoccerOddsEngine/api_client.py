@@ -15,14 +15,14 @@ class FootballAPIClient:
             "x-rapidapi-host": self.host
         }
 
-    def get_fixtures_today(self, federation: str = "UEFA", market: str = "classic"):
-        """Fetch fixtures and predictions from the Football Prediction API for a specific market."""
+    def get_fixtures_today(self, federation: str = "UEFA", market: str = "classic", date: str = None):
+        """Fetch fixtures and predictions from the Football Prediction API for a specific date."""
         endpoint = f"{self.base_url}/predictions"
-        today = datetime.now().strftime("%Y-%m-%d")
+        params_date = date if date else datetime.now().strftime("%Y-%m-%d")
         
         params = {
             "market": market,
-            "iso_date": today,
+            "iso_date": params_date,
             "federation": federation
         }
         

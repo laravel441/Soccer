@@ -88,7 +88,38 @@ main {
 .controls {
     display: flex;
     justify-content: center;
+    align-items: center;
+    gap: 2rem;
     margin-bottom: 3rem;
+}
+
+.date-picker-group {
+    display: flex;
+    flex-direction: column;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--glass-border);
+}
+
+.date-picker-group label {
+    font-size: 0.7rem;
+    color: var(--primary-cyan);
+    margin-bottom: 0.3rem;
+}
+
+.date-picker-group input[type="date"] {
+    background: transparent;
+    border: none;
+    color: var(--text-main);
+    font-family: 'Rajdhani', sans-serif;
+    font-size: 1.1rem;
+    outline: none;
+    cursor: pointer;
+}
+
+/* Adjust button for alignment */
+.btn-primary {
+    height: 100%;
+    align-self: flex-end;
 }
 
 .legend-container {

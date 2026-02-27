@@ -3,15 +3,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const parleysGrid = document.getElementById('parleys-grid');
     const loader = document.getElementById('loader');
     const lastUpdateSpan = document.getElementById('last-update');
+    const dateInput = document.getElementById('scan-date');
+
+    // Set default date to today
+    const today = new Date().toISOString().split('T')[0];
+    dateInput.value = today;
 
     const fetchParleys = async () => {
+        const selectedDate = dateInput.value;
         // Show loader
         parleysGrid.innerHTML = '';
         loader.classList.remove('hidden');
         refreshBtn.disabled = true;
 
         try {
-            const response = await fetch('/api/parleys');
+            const response = await fetch(`/api/parleys?date=${selectedDate}`);
             const data = await response.json();
 
             renderParleys(data);
