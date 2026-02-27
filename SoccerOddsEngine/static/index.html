@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Soccer Odds Engine | Predictive Intelligence</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Rajdhani:wght@300;500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="background-animation"></div>
+
+    <header>
+        <div class="logo-container">
+            <h1 class="glitch" data-text="ORQUESTADOR DE CUOTAS">ORQUESTADOR DE CUOTAS</h1>
+            <p class="tagline">Agente de Inteligencia Predictiva Deportiva</p>
+        </div>
+        <div class="status-bar">
+            <div class="status-item">
+                <span class="label">MODELO:</span>
+                <span class="value cyan">ANTIGRAVITY PRO</span>
+            </div>
+            <div class="status-item">
+                <span class="label">ESCANEO:</span>
+                <span class="value green" id="last-update">LISTO</span>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section class="legend-container glass">
+            <h3>GUÍA DE MERCADOS Y SELECCIONES</h3>
+            <div class="legend-grid">
+                <div class="legend-group">
+                    <h4>MERCADOS</h4>
+                    <ul>
+                        <li><span class="cyan">1X2:</span> Resultado Tradicional (Local/Empate/Visita)</li>
+                        <li><span class="cyan">+2.5 GOLES:</span> Total de Goles (Más/Menos 2.5)</li>
+                        <li><span class="cyan">AMBOS MARCAN:</span> Ambos equipos anotan gol</li>
+                    </ul>
+                </div>
+                <div class="legend-group">
+                    <h4>SELECCIONES</h4>
+                    <div class="selection-badges">
+                        <span class="badge">1: Local</span>
+                        <span class="badge">X: Empate</span>
+                        <span class="badge">2: Visitante</span>
+                        <span class="badge">1X: Local o Empate</span>
+                        <span class="badge">12: Local o Visitante</span>
+                        <span class="badge">X2: Empate o Visitante</span>
+                        <span class="badge">YES: Ambos marcan</span>
+                        <span class="badge">NO: No marcan ambos</span>
+                        <span class="badge">OVER: Más de 2.5</span>
+                        <span class="badge">UNDER: Menos de 2.5</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <div class="controls">
+            <button id="refresh-btn" class="btn-primary">
+                <span class="btn-text">EJECUTAR ESCANEO MATUTINO</span>
+                <div class="scan-line"></div>
+            </button>
+        </div>
+
+        <div id="loader" class="hidden">
+            <div class="ai-loader">
+                <div class="circle"></div>
+                <div class="line"></div>
+                <p>PROCESANDO MARKET SNAPSHOT...</p>
+            </div>
+        </div>
+
+        <div id="parleys-grid" class="parleys-container">
+            <!-- Parleys will be injected here -->
+        </div>
+    </main>
+
+    <footer>
+        <div class="api-status">
+            <span class="pulse"></span> CONECTADO A FOOTBALL PREDICTION API
+        </div>
+    </footer>
+
+    <template id="parley-template">
+        <div class="parley-card glass">
+            <div class="parley-header">
+                <h3>PARLEY #<span class="parley-id"></span></h3>
+                <div class="odds-badge">TOTAL: x<span class="total-odds"></span></div>
+            </div>
+            <div class="selections-list">
+                <!-- Selections will be injected here -->
+            </div>
+        </div>
+    </template>
+
+    <template id="selection-template">
+        <div class="selection-item">
+            <div class="match-info">
+                <span class="league"></span>
+                <span class="teams"></span>
+            </div>
+            <div class="bet-info">
+                <span class="market"></span>
+                <span class="prediction"></span>
+                <span class="selection-odds"></span>
+            </div>
+        </div>
+    </template>
+
+    <script src="app.js"></script>
+</body>
+
+</html>
