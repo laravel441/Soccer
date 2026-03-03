@@ -11,10 +11,10 @@ app = FastAPI(title="Soccer Odds Engine API")
 orchestrator = SoccerOddsOrchestrator()
 
 @app.get("/api/parleys")
-async def get_parleys(date: str = None, bet_amount: float = 10000):
+async def get_parleys(date: str = None, bet_amount: float = 10000, premium_only: bool = False):
     """Trigger the morning scan and return the 10 parleys with reconciliation and global stats."""
     try:
-        parleys = orchestrator.generate_parleys(date=date, bet_amount=bet_amount)
+        parleys = orchestrator.generate_parleys(date=date, bet_amount=bet_amount, premium_only=premium_only)
         parleys = orchestrator.verify_results(parleys)
         global_stats = orchestrator.calculate_daily_accuracy()
         

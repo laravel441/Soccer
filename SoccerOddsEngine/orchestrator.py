@@ -65,7 +65,7 @@ class SoccerOddsOrchestrator:
         """Simple model to simulate value bet filtering."""
         return self.market_cache.fixtures
 
-    def generate_parleys(self, date: str = None, bet_amount: float = 10000) -> List[Parley]:
+    def generate_parleys(self, date: str = None, bet_amount: float = 10000, premium_only: bool = False) -> List[Parley]:
         """Generates 10 optimized parleys for a specific date."""
         # Always re-scan if a specific date is requested or cache is empty
         if not self.market_cache or date:
@@ -75,6 +75,17 @@ class SoccerOddsOrchestrator:
         if not fixtures:
             print("No fixtures found to generate parleys.")
             return []
+            
+        if premium_only:
+            top_leagues = [
+                "premier league", "primera division", "serie a", "bundesliga", "ligue 1", 
+                "uefa champions league", "uefa europa league", "euro championship", 
+                "copa america", "world cup"
+            ]
+            fixtures = [f for f in fixtures if str(f.get("competition_name", "")).lower() in top_leagues]
+            if not fixtures:
+                print("No premium fixtures found.")
+                return []
             
         parleys = []
 
@@ -103,9 +114,12 @@ class SoccerOddsOrchestrator:
                 
                 odds = odds_dict.get(prediction, 1.0)
                 
+                country = fixture.get('competition_cluster', 'Intl')
+                competition = fixture.get('competition_name', '')
+                
                 sel = Selection(
                     match_id=fixture["id"],
-                    league=fixture["competition_name"],
+                    league=f"{country} - {competition}",
                     teams=f"{fixture['home_team']} vs {fixture['away_team']}",
                     market=ui_market,
                     selection=prediction,

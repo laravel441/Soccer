@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const dateInput = document.getElementById('scan-date');
     const betAmountInput = document.getElementById('bet-amount');
     const summarySection = document.getElementById('summary-section');
+    const tabAll = document.getElementById('tab-all');
+    const tabPremium = document.getElementById('tab-premium');
+    let isPremium = false;
 
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
@@ -22,7 +25,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}`);
+            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&premium_only=${isPremium}`);
             const data = await response.json();
 
             if (!data.parleys || data.parleys.length === 0) {
@@ -111,6 +114,22 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     refreshBtn.addEventListener('click', fetchParleys);
+
+    tabAll.addEventListener('click', () => {
+        if (!isPremium) return;
+        isPremium = false;
+        tabAll.classList.add('active');
+        tabPremium.classList.remove('active');
+        fetchParleys();
+    });
+
+    tabPremium.addEventListener('click', () => {
+        if (isPremium) return;
+        isPremium = true;
+        tabPremium.classList.add('active');
+        tabAll.classList.remove('active');
+        fetchParleys();
+    });
 
     // Initial load
     fetchParleys();
