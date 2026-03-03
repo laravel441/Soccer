@@ -14,11 +14,16 @@ class Selection(BaseModel):
     market: str
     selection: str
     odds: float
+    result: str = "PENDING"   # WON, LOST, PENDING
+    score: str = ""
 
 class Parley(BaseModel):
     parley_id: int
     selections: List[Selection]
     total_odds: float
+    status: str = "PENDING"     # WON, LOST, PENDING
+    bet_amount: float = 10000
+    estimated_return: float = 0.0
 
 class MarketSnapshot(BaseModel):
     timestamp: str
@@ -60,7 +65,7 @@ class SoccerOddsOrchestrator:
         """Simple model to simulate value bet filtering."""
         return self.market_cache.fixtures
 
-    def generate_parleys(self, date: str = None) -> List[Parley]:
+    def generate_parleys(self, date: str = None, bet_amount: float = 10000) -> List[Parley]:
         """Generates 10 optimized parleys for a specific date."""
         # Always re-scan if a specific date is requested or cache is empty
         if not self.market_cache or date:
@@ -75,7 +80,6 @@ class SoccerOddsOrchestrator:
 
         for i in range(1, 11):
             num_selections = random.randint(5, 10)
-            # Sample matches without duplicates in the same parley (based on id + market)
             selected_fixtures = random.sample(fixtures, min(num_selections, len(fixtures)))
             
             parley_selections = []
@@ -85,7 +89,6 @@ class SoccerOddsOrchestrator:
                 market = fixture.get("api_market", "classic")
                 prediction = fixture.get("prediction", "1")
                 
-                # Standardize selection for UI mapping
                 ui_market = market
                 if market == "over_under_25":
                     ui_market = "+2.5 GOLES"
@@ -96,7 +99,6 @@ class SoccerOddsOrchestrator:
 
                 odds_dict = fixture.get("odds", {})
                 if prediction not in odds_dict:
-                    # Fallback if prediction is missing in odds
                     prediction = list(odds_dict.keys())[0] if odds_dict else "1"
                 
                 odds = odds_dict.get(prediction, 1.0)
@@ -115,10 +117,93 @@ class SoccerOddsOrchestrator:
             parleys.append(Parley(
                 parley_id=i,
                 selections=parley_selections,
-                total_odds=round(final_odds, 2)
+                total_odds=round(final_odds, 2),
+                bet_amount=bet_amount,
+                estimated_return=round(bet_amount * final_odds, 2)
             ))
         
         return parleys
+
+    def verify_results(self, parleys: List[Parley]) -> List[Parley]:
+        """Verifies parley results against cached fixture data.
+        If ANY selection is lost, the parley is immediately LOST.
+        """
+        if not self.market_cache or not self.market_cache.fixtures:
+            return parleys
+
+        fixture_map = {f["id"]: f for f in self.market_cache.fixtures}
+
+        for parley in parleys:
+            parley_won = True
+            all_resolved = True
+
+            for sel in parley.selections:
+                fixture = fixture_map.get(sel.match_id)
+                if not fixture:
+                    all_resolved = False
+                    continue
+
+                api_status = fixture.get("status", "").lower()
+                raw_result = fixture.get("result", "")
+                if raw_result and " - " in raw_result:
+                    sel.score = raw_result.replace(" - ", "-")
+                else:
+                    sel.score = raw_result
+
+                if api_status in ["won", "lost"]:
+                    is_win = (api_status == "won")
+                    sel.result = "WON" if is_win else "LOST"
+                    if not is_win:
+                        parley_won = False
+                elif api_status == "pending":
+                    all_resolved = False
+                    sel.result = "PENDING"
+                else:
+                    all_resolved = False
+                    sel.result = "PENDING"
+
+            # Key logic: if ANY selection lost, parley is LOST immediately
+            if not parley_won:
+                parley.status = "LOST"
+                parley.estimated_return = 0.0
+            elif not all_resolved:
+                parley.status = "PENDING"
+            else:
+                parley.status = "WON"
+
+        return parleys
+
+    def calculate_daily_accuracy(self) -> dict:
+        """Calculates global prediction accuracy for the day based on downloaded fixtures."""
+        stats = {
+            "total_matches": 0,
+            "won": 0,
+            "lost": 0,
+            "pending": 0,
+            "accuracy_percentage": 0.0
+        }
+        
+        if not self.market_cache or not self.market_cache.fixtures:
+            return stats
+            
+        for fixture in self.market_cache.fixtures:
+            status = fixture.get("status", "").lower()
+            prediction = fixture.get("prediction", "")
+            
+            stats["total_matches"] += 1
+            
+            if status == "won":
+                stats["won"] += 1
+            elif status == "lost":
+                stats["lost"] += 1
+            else:
+                stats["pending"] += 1
+                
+        resolved_matches = stats["won"] + stats["lost"]
+        if resolved_matches > 0:
+            stats["accuracy_percentage"] = round((stats["won"] / resolved_matches) * 100, 2)
+            
+        return stats
 
     def run_morning_workflow(self):
         """Executes the full automated workflow."""

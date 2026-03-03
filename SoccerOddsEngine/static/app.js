@@ -4,6 +4,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const loader = document.getElementById('loader');
     const lastUpdateSpan = document.getElementById('last-update');
     const dateInput = document.getElementById('scan-date');
+    const betAmountInput = document.getElementById('bet-amount');
+    const summarySection = document.getElementById('summary-section');
 
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
@@ -11,16 +13,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const fetchParleys = async () => {
         const selectedDate = dateInput.value;
+        const betAmount = parseInt(betAmountInput.value) || 10000;
+
         // Show loader
         parleysGrid.innerHTML = '';
+        summarySection.classList.add('hidden');
         loader.classList.remove('hidden');
         refreshBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/parleys?date=${selectedDate}`);
+            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}`);
             const data = await response.json();
 
-            renderParleys(data);
+            if (!data.parleys || data.parleys.length === 0) {
+                parleysGrid.innerHTML = '<p class="error">NO SE ENCONTRARON PARTIDOS PARA ESTE FILTRO</p>';
+            } else {
+                renderParleys(data.parleys);
+                renderSummary(data.parleys, betAmount, data.global_stats);
+            }
 
             const now = new Date();
             lastUpdateSpan.innerText = `ESCANEO COMPLETADO A LAS ${now.getHours()}:${now.getMinutes().toString().padStart(2, '0')}`;
@@ -34,6 +44,23 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const renderSummary = (parleys, betAmount, stats) => {
+        const totalInvested = parleys.length * betAmount;
+        const won = parleys.filter(p => p.status === 'WON');
+        const lost = parleys.filter(p => p.status === 'LOST');
+        const pending = parleys.filter(p => p.status === 'PENDING');
+        const totalReturn = parleys.reduce((sum, p) => sum + (p.status === 'WON' ? p.estimated_return : 0), 0);
+
+        document.getElementById('total-invested').textContent = `$${totalInvested.toLocaleString('es-CO')} COP`;
+        document.getElementById('total-return').textContent = `$${totalReturn.toLocaleString('es-CO')} COP`;
+        document.getElementById('global-accuracy').textContent = stats ? `${stats.accuracy_percentage}%` : '0%';
+        document.getElementById('total-won').textContent = won.length;
+        document.getElementById('total-lost').textContent = lost.length;
+        document.getElementById('total-pending').textContent = pending.length;
+
+        summarySection.classList.remove('hidden');
+    };
+
     const renderParleys = (parleys) => {
         const parleyTemplate = document.getElementById('parley-template');
         const selectionTemplate = document.getElementById('selection-template');
@@ -42,6 +69,20 @@ document.addEventListener('DOMContentLoaded', () => {
             const parleyNode = parleyTemplate.content.cloneNode(true);
             parleyNode.querySelector('.parley-id').textContent = parley.parley_id;
             parleyNode.querySelector('.total-odds').textContent = parley.total_odds.toFixed(2);
+
+            // Status badge
+            const statusBadge = parleyNode.querySelector('.parley-status-badge');
+            statusBadge.textContent = parley.status;
+            statusBadge.classList.add(`status-${parley.status.toLowerCase()}`);
+
+            // Financials
+            parleyNode.querySelector('.parley-bet').textContent = parley.bet_amount.toLocaleString('es-CO');
+            parleyNode.querySelector('.parley-return').textContent = parley.estimated_return.toLocaleString('es-CO');
+
+            // Card border color based on status
+            const card = parleyNode.querySelector('.parley-card');
+            if (parley.status === 'WON') card.classList.add('parley-won');
+            if (parley.status === 'LOST') card.classList.add('parley-lost');
 
             const selectionsList = parleyNode.querySelector('.selections-list');
 
@@ -52,6 +93,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 selNode.querySelector('.market').textContent = sel.market.toUpperCase();
                 selNode.querySelector('.prediction').textContent = sel.selection;
                 selNode.querySelector('.selection-odds').textContent = `x${sel.odds.toFixed(2)}`;
+
+                // Score
+                const scoreEl = selNode.querySelector('.score');
+                if (sel.score) scoreEl.textContent = `[${sel.score}]`;
+
+                // Result badge
+                const resultEl = selNode.querySelector('.selection-result');
+                resultEl.textContent = sel.result;
+                resultEl.classList.add(`result-${sel.result.toLowerCase()}`);
 
                 selectionsList.appendChild(selNode);
             });

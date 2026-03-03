@@ -1,6 +1,8 @@
 :root {
     --primary-cyan: #00f2ff;
     --primary-green: #00ff88;
+    --primary-red: #ff4444;
+    --primary-yellow: #ffaa00;
     --bg-dark: #0a0e14;
     --card-bg: rgba(16, 22, 32, 0.7);
     --glass-border: rgba(255, 255, 255, 0.1);
@@ -338,4 +340,154 @@ footer {
         transform: scale(0.95);
         opacity: 0.7;
     }
+}
+
+/* ── Reconciliation Summary ─────────────────────────────────── */
+.summary-container {
+    padding: 1.5rem;
+    margin: 1rem 2rem;
+    border-radius: 12px;
+}
+
+.summary-container h3 {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1rem;
+    color: var(--primary-cyan);
+    margin-bottom: 1rem;
+    letter-spacing: 2px;
+}
+
+.summary-grid {
+    display: flex;
+    gap: 2rem;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-width: 120px;
+}
+
+.summary-label {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    letter-spacing: 1px;
+    margin-bottom: 0.3rem;
+}
+
+.summary-value {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+}
+
+.summary-value.cyan {
+    color: var(--primary-cyan);
+}
+
+.summary-value.green,
+.green {
+    color: var(--primary-green);
+}
+
+.summary-value.red,
+.red {
+    color: var(--primary-red);
+}
+
+.summary-value.yellow,
+.yellow {
+    color: var(--primary-yellow);
+}
+
+/* ── Parley Status Badge ─────────────────────────────────── */
+.parley-status-badge {
+    padding: 4px 12px;
+    border-radius: 4px;
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 1px;
+    font-weight: 700;
+}
+
+.status-won {
+    background: rgba(0, 255, 136, 0.15);
+    color: var(--primary-green);
+    border: 1px solid var(--primary-green);
+}
+
+.status-lost {
+    background: rgba(255, 68, 68, 0.15);
+    color: var(--primary-red);
+    border: 1px solid var(--primary-red);
+}
+
+.status-pending {
+    background: rgba(255, 170, 0, 0.15);
+    color: var(--primary-yellow);
+    border: 1px solid var(--primary-yellow);
+}
+
+/* ── Parley Card Status Borders ─────────────────────────── */
+.parley-won {
+    border-left: 3px solid var(--primary-green);
+}
+
+.parley-lost {
+    border-left: 3px solid var(--primary-red);
+    opacity: 0.7;
+}
+
+/* ── Parley Financials ──────────────────────────────────── */
+.parley-financials {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 1rem;
+    font-size: 0.85rem;
+    color: var(--text-dim);
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.return-display {
+    color: var(--primary-cyan);
+    font-weight: 600;
+}
+
+/* ── Selection Result ───────────────────────────────────── */
+.selection-result {
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 3px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.result-won {
+    background: rgba(0, 255, 136, 0.15);
+    color: var(--primary-green);
+}
+
+.result-lost {
+    background: rgba(255, 68, 68, 0.15);
+    color: var(--primary-red);
+}
+
+.result-pending {
+    color: var(--text-dim);
+}
+
+/* ── Score Display ──────────────────────────────────────── */
+.score {
+    font-family: 'Orbitron', sans-serif;
+    font-size: 0.75rem;
+    color: var(--primary-cyan);
+    margin-left: 0.5rem;
+}
+
+/* ── Hidden Utility ─────────────────────────────────────── */
+.hidden {
+    display: none !important;
 }

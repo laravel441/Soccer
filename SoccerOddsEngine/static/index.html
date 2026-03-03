@@ -68,11 +68,47 @@
                 <label for="scan-date">FECHA DE ANÁLISIS:</label>
                 <input type="date" id="scan-date">
             </div>
+            <div class="date-picker-group glass">
+                <label for="bet-amount">APUESTA POR PARLEY (COP $):</label>
+                <input type="number" id="bet-amount" value="10000" min="1000" step="1000">
+            </div>
             <button id="refresh-btn" class="btn-primary">
                 <span class="btn-text">EJECUTAR ESCANEO</span>
                 <div class="scan-line"></div>
             </button>
         </div>
+
+        <section id="summary-section" class="hidden">
+            <div class="summary-container glass">
+                <h3>RESUMEN DE LA JORNADA</h3>
+                <div class="summary-grid">
+                    <div class="summary-item">
+                        <span class="summary-label">INVERSIÓN</span>
+                        <span class="summary-value" id="total-invested">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">RETORNO ESTIMADO</span>
+                        <span class="summary-value cyan" id="total-return">$0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">ACIERTO PREDICCIONES</span>
+                        <span class="summary-value cyan" id="global-accuracy">0%</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">PARLEYS GANADOS</span>
+                        <span class="summary-value green" id="total-won">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">PARLEYS PERDIDOS</span>
+                        <span class="summary-value red" id="total-lost">0</span>
+                    </div>
+                    <div class="summary-item">
+                        <span class="summary-label">PARLEYS PENDIENTES</span>
+                        <span class="summary-value yellow" id="total-pending">0</span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
         <div id="loader" class="hidden">
             <div class="ai-loader">
@@ -97,7 +133,12 @@
         <div class="parley-card glass">
             <div class="parley-header">
                 <h3>PARLEY #<span class="parley-id"></span></h3>
+                <div class="parley-status-badge">PENDING</div>
                 <div class="odds-badge">TOTAL: x<span class="total-odds"></span></div>
+            </div>
+            <div class="parley-financials">
+                <span class="bet-amount-display">Apuesta: $<span class="parley-bet"></span></span>
+                <span class="return-display">Retorno: $<span class="parley-return"></span></span>
             </div>
             <div class="selections-list">
                 <!-- Selections will be injected here -->
@@ -110,11 +151,13 @@
             <div class="match-info">
                 <span class="league"></span>
                 <span class="teams"></span>
+                <span class="score"></span>
             </div>
             <div class="bet-info">
                 <span class="market"></span>
                 <span class="prediction"></span>
                 <span class="selection-odds"></span>
+                <span class="selection-result"></span>
             </div>
         </div>
     </template>
