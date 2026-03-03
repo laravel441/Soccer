@@ -20,7 +20,7 @@ class FootballAPIClient:
             "x-rapidapi-host": self.host
         }
 
-    def get_fixtures_today(self, federation: str = "UEFA", market: str = "classic", date: str = None):
+    def get_fixtures_today(self, federation: str = "ALL", market: str = "classic", date: str = None):
         """Fetch fixtures and predictions from the Football Prediction API for a specific date."""
         params_date = date if date else datetime.now().strftime("%Y-%m-%d")
         
@@ -38,9 +38,10 @@ class FootballAPIClient:
         endpoint = f"{self.base_url}/predictions"
         params = {
             "market": market,
-            "iso_date": params_date,
-            "federation": federation
+            "iso_date": params_date
         }
+        if federation != "ALL":
+            params["federation"] = federation
         
         try:
             print(f"[API CALL] Fetching data for {params_date} - {federation} - {market}...")

@@ -8,7 +8,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const summarySection = document.getElementById('summary-section');
     const tabAll = document.getElementById('tab-all');
     const tabPremium = document.getElementById('tab-premium');
-    let isPremium = false;
+    const tabSafe = document.getElementById('tab-safe');
+    let currentMode = 'all';
 
     // Set default date to today
     const today = new Date().toISOString().split('T')[0];
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
         refreshBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&premium_only=${isPremium}`);
+            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&mode=${currentMode}`);
             const data = await response.json();
 
             if (!data.parleys || data.parleys.length === 0) {
@@ -62,6 +63,27 @@ document.addEventListener('DOMContentLoaded', () => {
         document.getElementById('total-pending').textContent = pending.length;
 
         summarySection.classList.remove('hidden');
+
+        // Render Federation Stats if available
+        const fedWrapper = document.getElementById('fed-stats-wrapper');
+        const fedList = document.getElementById('fed-stats-list');
+        fedList.innerHTML = '';
+
+        if (stats && stats.federations && stats.federations.length > 0) {
+            stats.federations.forEach(fed => {
+                const badge = document.createElement('div');
+                badge.className = 'fed-badge';
+                badge.innerHTML = `
+                    <span class="fed-badge-name">${fed.name}</span>
+                    <span class="fed-badge-acc">${fed.accuracy}%</span>
+                    <span class="fed-badge-sub">${fed.won}W - ${fed.lost}L - ${fed.pending}P</span>
+                `;
+                fedList.appendChild(badge);
+            });
+            fedWrapper.classList.remove('hidden');
+        } else {
+            fedWrapper.classList.add('hidden');
+        }
     };
 
     const renderParleys = (parleys) => {
@@ -115,21 +137,21 @@ document.addEventListener('DOMContentLoaded', () => {
 
     refreshBtn.addEventListener('click', fetchParleys);
 
-    tabAll.addEventListener('click', () => {
-        if (!isPremium) return;
-        isPremium = false;
-        tabAll.classList.add('active');
-        tabPremium.classList.remove('active');
-        fetchParleys();
-    });
+    function switchTab(mode, activeTab) {
+        if (currentMode === mode) return;
+        currentMode = mode;
 
-    tabPremium.addEventListener('click', () => {
-        if (isPremium) return;
-        isPremium = true;
-        tabPremium.classList.add('active');
         tabAll.classList.remove('active');
+        tabPremium.classList.remove('active');
+        tabSafe.classList.remove('active');
+
+        activeTab.classList.add('active');
         fetchParleys();
-    });
+    }
+
+    tabAll.addEventListener('click', () => switchTab('all', tabAll));
+    tabPremium.addEventListener('click', () => switchTab('premium', tabPremium));
+    tabSafe.addEventListener('click', () => switchTab('safe', tabSafe));
 
     // Initial load
     fetchParleys();

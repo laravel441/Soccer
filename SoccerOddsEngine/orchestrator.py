@@ -43,7 +43,7 @@ class SoccerOddsOrchestrator:
         scan_date = date if date else datetime.now().strftime("%Y-%m-%d")
         
         for market in markets:
-            fixtures = self.api_client.get_fixtures_today(federation="UEFA", market=market, date=scan_date)
+            fixtures = self.api_client.get_fixtures_today(federation="ALL", market=market, date=scan_date)
             # Filter strictly by the scan date
             filtered_fixtures = [
                 f for f in fixtures 
@@ -65,7 +65,7 @@ class SoccerOddsOrchestrator:
         """Simple model to simulate value bet filtering."""
         return self.market_cache.fixtures
 
-    def generate_parleys(self, date: str = None, bet_amount: float = 10000, premium_only: bool = False) -> List[Parley]:
+    def generate_parleys(self, date: str = None, bet_amount: float = 10000, mode: str = 'all') -> List[Parley]:
         """Generates 10 optimized parleys for a specific date."""
         # Always re-scan if a specific date is requested or cache is empty
         if not self.market_cache or date:
@@ -76,21 +76,50 @@ class SoccerOddsOrchestrator:
             print("No fixtures found to generate parleys.")
             return []
             
-        if premium_only:
+        if mode in ['premium', 'safe']:
             top_leagues = [
                 "premier league", "primera division", "serie a", "bundesliga", "ligue 1", 
                 "uefa champions league", "uefa europa league", "euro championship", 
-                "copa america", "world cup"
+                "copa america", "world cup", "eredivisie", "primeira liga", "championship",
+                "brasileiro serie a", "liga profesional argentina", "mls", "primera a", "super lig"
             ]
             fixtures = [f for f in fixtures if str(f.get("competition_name", "")).lower() in top_leagues]
             if not fixtures:
                 print("No premium fixtures found.")
                 return []
+                
+        if mode == 'safe':
+            safe_fixtures = []
+            for f in fixtures:
+                market = f.get("api_market", "classic")
+                prediction = f.get("prediction", "1")
+                odds_dict = f.get("odds", {})
+                
+                # Apply Double Chance
+                if market == "classic" and prediction in ["1", "2"]:
+                    new_pred = "1X" if prediction == "1" else "X2"
+                    if new_pred in odds_dict:
+                        prediction = new_pred
+                        f["prediction"] = prediction # Update inline for downstream
+                        
+                # Filter by Odds Range (Increased bounds for better return)
+                odds = float(odds_dict.get(prediction, 1.0))
+                if 1.15 <= odds <= 1.85:
+                    safe_fixtures.append(f)
+                    
+            fixtures = safe_fixtures
+            if not fixtures:
+                print("No safe fixtures matching criteria found.")
+                return []
             
         parleys = []
 
         for i in range(1, 11):
-            num_selections = random.randint(5, 10)
+            if mode == 'safe':
+                num_selections = random.randint(2, 4)
+            else:
+                num_selections = random.randint(5, 10)
+                
             selected_fixtures = random.sample(fixtures, min(num_selections, len(fixtures)))
             
             parley_selections = []
@@ -188,13 +217,14 @@ class SoccerOddsOrchestrator:
         return parleys
 
     def calculate_daily_accuracy(self) -> dict:
-        """Calculates global prediction accuracy for the day based on downloaded fixtures."""
+        """Calculates global and federation-specific prediction accuracy."""
         stats = {
             "total_matches": 0,
             "won": 0,
             "lost": 0,
             "pending": 0,
-            "accuracy_percentage": 0.0
+            "accuracy_percentage": 0.0,
+            "federations": {}
         }
         
         if not self.market_cache or not self.market_cache.fixtures:
@@ -202,10 +232,10 @@ class SoccerOddsOrchestrator:
             
         for fixture in self.market_cache.fixtures:
             status = fixture.get("status", "").lower()
-            prediction = fixture.get("prediction", "")
+            fed = fixture.get("federation", "Unknown")
             
+            # Global Tally
             stats["total_matches"] += 1
-            
             if status == "won":
                 stats["won"] += 1
             elif status == "lost":
@@ -213,9 +243,41 @@ class SoccerOddsOrchestrator:
             else:
                 stats["pending"] += 1
                 
+            # Federation Tally
+            if fed not in stats["federations"]:
+                stats["federations"][fed] = {"won": 0, "lost": 0, "pending": 0, "total": 0}
+                
+            stats["federations"][fed]["total"] += 1
+            if status == "won":
+                stats["federations"][fed]["won"] += 1
+            elif status == "lost":
+                stats["federations"][fed]["lost"] += 1
+            else:
+                stats["federations"][fed]["pending"] += 1
+                
+        # Calculate Global Percentage
         resolved_matches = stats["won"] + stats["lost"]
         if resolved_matches > 0:
             stats["accuracy_percentage"] = round((stats["won"] / resolved_matches) * 100, 2)
+            
+        # Calculate Federation Percentages and format as list
+        fed_list = []
+        for fed, counts in stats["federations"].items():
+            fed_resolved = counts["won"] + counts["lost"]
+            accuracy = 0.0
+            if fed_resolved > 0:
+                accuracy = round((counts["won"] / fed_resolved) * 100, 2)
+            fed_list.append({
+                "name": fed,
+                "accuracy": accuracy,
+                "won": counts["won"],
+                "lost": counts["lost"],
+                "total": counts["total"]
+            })
+            
+        # Optional: Sort by accuracy descending or total volume
+        fed_list.sort(key=lambda x: x["total"], reverse=True)
+        stats["federations"] = fed_list
             
         return stats
 
