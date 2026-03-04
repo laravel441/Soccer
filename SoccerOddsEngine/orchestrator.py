@@ -2,7 +2,7 @@ import json
 import random
 import schedule
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from typing import List, Dict
 from pydantic import BaseModel
 from api_client import FootballAPIClient
@@ -14,6 +14,7 @@ class Selection(BaseModel):
     market: str
     selection: str
     odds: float
+    start_time: str = ""
     result: str = "PENDING"   # WON, LOST, PENDING
     score: str = ""
 
@@ -36,27 +37,27 @@ class SoccerOddsOrchestrator:
 
     def scan_markets(self, date: str = None):
         """Scans multiple top markets for a specific date (YYYY-MM-DD)."""
-        print(f"[{datetime.now()}] Starting scan for date: {date}...")
+        bogota_tz = timezone(timedelta(hours=-5))
+        now_bogota = datetime.now(timezone.utc).astimezone(bogota_tz)
+        print(f"[{now_bogota}] Starting scan for date: {date}...")
         
         markets = ["classic", "btts", "over_under_25"]
         all_fixtures = []
-        scan_date = date if date else datetime.now().strftime("%Y-%m-%d")
+        scan_date = date if date else now_bogota.strftime("%Y-%m-%d")
         
         for market in markets:
             fixtures = self.api_client.get_fixtures_today(federation="ALL", market=market, date=scan_date)
-            # Filter strictly by the scan date
-            filtered_fixtures = [
-                f for f in fixtures 
-                if f.get("start_date", "").startswith(scan_date)
-            ]
+            # Make sure we don't accidentally drop matches due to UTC rollover
+            filtered_fixtures = fixtures if fixtures else []
             
             # Add market tag to each fixture for identification
             for f in filtered_fixtures:
                 f["api_market"] = market
             all_fixtures.extend(filtered_fixtures)
         
+        bogota_tz = timezone(timedelta(hours=-5))
         self.market_cache = MarketSnapshot(
-            timestamp=datetime.now().isoformat(),
+            timestamp=datetime.now(timezone.utc).astimezone(bogota_tz).isoformat(),
             fixtures=all_fixtures
         )
         print(f"[{datetime.now()}] Scan complete. {len(all_fixtures)} entries found for {scan_date}.")
@@ -65,7 +66,7 @@ class SoccerOddsOrchestrator:
         """Simple model to simulate value bet filtering."""
         return self.market_cache.fixtures
 
-    def generate_parleys(self, date: str = None, bet_amount: float = 10000, mode: str = 'all') -> List[Parley]:
+    def generate_parleys(self, date: str = None, bet_amount: float = 10000, mode: str = 'all', federation_filter: str = None) -> List[Parley]:
         """Generates 10 optimized parleys for a specific date."""
         # Always re-scan if a specific date is requested or cache is empty
         if not self.market_cache or date:
@@ -75,6 +76,12 @@ class SoccerOddsOrchestrator:
         if not fixtures:
             print("No fixtures found to generate parleys.")
             return []
+            
+        if federation_filter:
+            fixtures = [f for f in fixtures if str(f.get("federation", "")).lower() == federation_filter.lower()]
+            if not fixtures:
+                print(f"No fixtures found for federation: {federation_filter}")
+                return []
             
         if mode in ['premium', 'safe']:
             top_leagues = [
@@ -113,14 +120,32 @@ class SoccerOddsOrchestrator:
                 return []
             
         parleys = []
-
-        for i in range(1, 11):
+        seen_signatures = set()
+        
+        attempts = 0
+        while len(parleys) < 10 and attempts < 150:
+            attempts += 1
+            
             if mode == 'safe':
-                num_selections = random.randint(2, 4)
+                min_sel = 2
+                max_sel = min(4, len(fixtures))
             else:
-                num_selections = random.randint(5, 10)
+                min_sel = 3 if len(fixtures) < 5 else 5
+                max_sel = min(10, len(fixtures))
                 
-            selected_fixtures = random.sample(fixtures, min(num_selections, len(fixtures)))
+            if min_sel > max_sel:
+                min_sel = max_sel
+                
+            if max_sel == 0:
+                break
+                
+            num_selections = random.randint(min_sel, max_sel)
+            selected_fixtures = random.sample(fixtures, num_selections)
+            
+            signature = tuple(sorted(f["id"] for f in selected_fixtures))
+            if signature in seen_signatures:
+                continue
+            seen_signatures.add(signature)
             
             parley_selections = []
             final_odds = 1.0
@@ -146,19 +171,31 @@ class SoccerOddsOrchestrator:
                 country = fixture.get('competition_cluster', 'Intl')
                 competition = fixture.get('competition_name', '')
                 
+                match_time = ""
+                try:
+                    start_date_str = fixture.get("start_date", "")
+                    if start_date_str:
+                        dt_utc = datetime.strptime(start_date_str, "%Y-%m-%dT%H:%M:%S")
+                        dt_utc = dt_utc.replace(tzinfo=timezone.utc)
+                        dt_bogota = dt_utc.astimezone(timezone(timedelta(hours=-5)))
+                        match_time = dt_bogota.strftime("%H:%M")
+                except Exception as e:
+                    pass
+                
                 sel = Selection(
                     match_id=fixture["id"],
                     league=f"{country} - {competition}",
                     teams=f"{fixture['home_team']} vs {fixture['away_team']}",
                     market=ui_market,
                     selection=prediction,
-                    odds=float(odds)
+                    odds=float(odds),
+                    start_time=match_time
                 )
                 parley_selections.append(sel)
                 final_odds *= float(odds)
 
             parleys.append(Parley(
-                parley_id=i,
+                parley_id=len(parleys) + 1,
                 selections=parley_selections,
                 total_odds=round(final_odds, 2),
                 bet_amount=bet_amount,
@@ -272,6 +309,7 @@ class SoccerOddsOrchestrator:
                 "accuracy": accuracy,
                 "won": counts["won"],
                 "lost": counts["lost"],
+                "pending": counts["pending"],
                 "total": counts["total"]
             })
             

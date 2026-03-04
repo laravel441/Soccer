@@ -2,7 +2,7 @@ import os
 import requests
 import json
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -22,7 +22,8 @@ class FootballAPIClient:
 
     def get_fixtures_today(self, federation: str = "ALL", market: str = "classic", date: str = None):
         """Fetch fixtures and predictions from the Football Prediction API for a specific date."""
-        params_date = date if date else datetime.now().strftime("%Y-%m-%d")
+        bogota_tz = timezone(timedelta(hours=-5))
+        params_date = date if date else datetime.now(timezone.utc).astimezone(bogota_tz).strftime("%Y-%m-%d")
         
         # 1. Check local cache
         cache_file = os.path.join(CACHE_DIR, f"{params_date}_{federation}_{market}.json")

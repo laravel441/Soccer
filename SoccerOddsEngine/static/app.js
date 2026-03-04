@@ -10,28 +10,42 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabPremium = document.getElementById('tab-premium');
     const tabSafe = document.getElementById('tab-safe');
     let currentMode = 'all';
+    let currentFedFilter = null;
 
-    // Set default date to today
-    const today = new Date().toISOString().split('T')[0];
+    // Set default date to today in Bogota timezone
+    const now = new Date();
+    const formatter = new Intl.DateTimeFormat('en-CA', {
+        timeZone: 'America/Bogota',
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit'
+    });
+    const today = formatter.format(now);
     dateInput.value = today;
 
     const fetchParleys = async () => {
         const selectedDate = dateInput.value;
         const betAmount = parseInt(betAmountInput.value) || 10000;
 
-        // Show loader
-        parleysGrid.innerHTML = '';
+        // Show loader and dim existing grid
+        parleysGrid.classList.add('grid-loading');
         summarySection.classList.add('hidden');
         loader.classList.remove('hidden');
         refreshBtn.disabled = true;
 
         try {
-            const response = await fetch(`/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&mode=${currentMode}`);
+            let url = `/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&mode=${currentMode}`;
+            if (currentFedFilter) {
+                url += `&federation_filter=${currentFedFilter}`;
+            }
+            const response = await fetch(url);
             const data = await response.json();
 
             if (!data.parleys || data.parleys.length === 0) {
                 parleysGrid.innerHTML = '<p class="error">NO SE ENCONTRARON PARTIDOS PARA ESTE FILTRO</p>';
+                summarySection.classList.add('hidden');
             } else {
+                parleysGrid.innerHTML = ''; // Clear old grid now that we have data
                 renderParleys(data.parleys);
                 renderSummary(data.parleys, betAmount, data.global_stats);
             }
@@ -44,6 +58,7 @@ document.addEventListener('DOMContentLoaded', () => {
             parleysGrid.innerHTML = '<p class="error">ERROR AL CONECTAR CON LA INFRAESTRUCTURA DEL AGENTE</p>';
         } finally {
             loader.classList.add('hidden');
+            parleysGrid.classList.remove('grid-loading');
             refreshBtn.disabled = false;
         }
     };
@@ -73,11 +88,25 @@ document.addEventListener('DOMContentLoaded', () => {
             stats.federations.forEach(fed => {
                 const badge = document.createElement('div');
                 badge.className = 'fed-badge';
+                if (currentFedFilter === fed.name) {
+                    badge.classList.add('active-filter');
+                    badge.style.border = '1px solid var(--primary-cyan)';
+                    badge.style.boxShadow = '0 0 10px rgba(0, 242, 255, 0.2)';
+                } else {
+                    badge.style.cursor = 'pointer';
+                }
+
                 badge.innerHTML = `
                     <span class="fed-badge-name">${fed.name}</span>
                     <span class="fed-badge-acc">${fed.accuracy}%</span>
                     <span class="fed-badge-sub">${fed.won}W - ${fed.lost}L - ${fed.pending}P</span>
                 `;
+
+                badge.addEventListener('click', () => {
+                    currentFedFilter = fed.name;
+                    fetchParleys();
+                });
+
                 fedList.appendChild(badge);
             });
             fedWrapper.classList.remove('hidden');
@@ -114,6 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
             parley.selections.forEach(sel => {
                 const selNode = selectionTemplate.content.cloneNode(true);
                 selNode.querySelector('.league').textContent = sel.league;
+                selNode.querySelector('.match-time').textContent = sel.start_time;
                 selNode.querySelector('.teams').textContent = sel.teams;
                 selNode.querySelector('.market').textContent = sel.market.toUpperCase();
                 selNode.querySelector('.prediction').textContent = sel.selection;
@@ -135,7 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
-    refreshBtn.addEventListener('click', fetchParleys);
+    refreshBtn.addEventListener('click', () => {
+        currentFedFilter = null;
+        fetchParleys();
+    });
 
     function switchTab(mode, activeTab) {
         if (currentMode === mode) return;

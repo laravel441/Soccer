@@ -198,6 +198,14 @@ main {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
     gap: 2rem;
+    transition: opacity 0.4s ease, filter 0.4s ease, transform 0.4s ease;
+}
+
+.parleys-container.grid-loading {
+    opacity: 0.3;
+    filter: blur(5px);
+    transform: scale(0.98);
+    pointer-events: none;
 }
 
 .glass {
@@ -250,10 +258,19 @@ main {
 }
 
 .match-info .league {
-    display: block;
+    display: inline-block;
     font-size: 0.7rem;
     color: var(--primary-cyan);
     text-transform: uppercase;
+    margin-bottom: 0.2rem;
+    margin-right: 0.5rem;
+}
+
+.match-time {
+    display: inline-block;
+    font-size: 0.75rem;
+    color: var(--primary-green);
+    font-weight: bold;
     margin-bottom: 0.2rem;
 }
 
@@ -562,6 +579,13 @@ footer {
     flex-direction: column;
     align-items: center;
     min-width: 100px;
+    transition: all 0.2s ease-in-out;
+}
+
+.fed-badge:hover {
+    border-color: rgba(0, 255, 136, 0.8);
+    box-shadow: 0 0 12px rgba(0, 255, 136, 0.2);
+    transform: translateY(-2px);
 }
 
 .fed-badge-name {
