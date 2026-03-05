@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const refreshBtn = document.getElementById('refresh-btn');
+    const updateResultsBtn = document.getElementById('update-results-btn');
     const parleysGrid = document.getElementById('parleys-grid');
     const loader = document.getElementById('loader');
     const lastUpdateSpan = document.getElementById('last-update');
@@ -9,8 +10,19 @@ document.addEventListener('DOMContentLoaded', () => {
     const tabAll = document.getElementById('tab-all');
     const tabPremium = document.getElementById('tab-premium');
     const tabSafe = document.getElementById('tab-safe');
+    const tabDaily = document.getElementById('tab-daily');
+    const tabSaved = document.getElementById('tab-saved');
+
+    // Modal elements
+    const saveModal = document.getElementById('save-modal');
+    const modalBetAmount = document.getElementById('modal-bet-amount');
+    const modalConfirm = document.getElementById('modal-confirm');
+    const modalCancel = document.getElementById('modal-cancel');
+    let parleyToSave = null;
+
     let currentMode = 'all';
     let currentFedFilter = null;
+    let allData = null; // Store full response for local filtering
 
     // Set default date to today in Bogota timezone
     const now = new Date();
@@ -23,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const today = formatter.format(now);
     dateInput.value = today;
 
-    const fetchParleys = async () => {
+    const fetchParleys = async (forceRefresh = false) => {
         const selectedDate = dateInput.value;
         const betAmount = parseInt(betAmountInput.value) || 10000;
 
@@ -32,14 +44,22 @@ document.addEventListener('DOMContentLoaded', () => {
         summarySection.classList.add('hidden');
         loader.classList.remove('hidden');
         refreshBtn.disabled = true;
+        updateResultsBtn.disabled = true;
 
         try {
             let url = `/api/parleys?date=${selectedDate}&bet_amount=${betAmount}&mode=${currentMode}`;
             if (currentFedFilter) {
                 url += `&federation_filter=${currentFedFilter}`;
             }
+            if (forceRefresh) {
+                url += `&force_refresh=true`;
+            }
+            if (currentMode === 'daily') {
+                url += `&show_all=true`;
+            }
             const response = await fetch(url);
             const data = await response.json();
+            allData = data; // Store for filtering
 
             if (!data.parleys || data.parleys.length === 0) {
                 parleysGrid.innerHTML = '<p class="error">NO SE ENCONTRARON PARTIDOS PARA ESTE FILTRO</p>';
@@ -47,6 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 parleysGrid.innerHTML = ''; // Clear old grid now that we have data
                 renderParleys(data.parleys);
+                renderSidebar(data.all_predictions);
                 renderSummary(data.parleys, betAmount, data.global_stats);
             }
 
@@ -60,6 +81,31 @@ document.addEventListener('DOMContentLoaded', () => {
             loader.classList.add('hidden');
             parleysGrid.classList.remove('grid-loading');
             refreshBtn.disabled = false;
+            updateResultsBtn.disabled = false;
+        }
+    };
+
+    const fetchSavedParleys = async () => {
+        parleysGrid.classList.add('grid-loading');
+        summarySection.classList.add('hidden');
+        loader.classList.remove('hidden');
+
+        try {
+            const response = await fetch('/api/parleys/saved');
+            const data = await response.json();
+
+            parleysGrid.innerHTML = '';
+            if (!data.saved_parleys || data.saved_parleys.length === 0) {
+                parleysGrid.innerHTML = '<p class="error">AÚN NO HAS GUARDADO NINGÚN PARLEY</p>';
+            } else {
+                renderParleys(data.saved_parleys, true);
+            }
+        } catch (error) {
+            console.error('Error fetching saved parleys:', error);
+            parleysGrid.innerHTML = '<p class="error">ERROR AL CARGAR TUS PARLEYS GUARDADOS</p>';
+        } finally {
+            loader.classList.add('hidden');
+            parleysGrid.classList.remove('grid-loading');
         }
     };
 
@@ -89,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 const badge = document.createElement('div');
                 badge.className = 'fed-badge';
                 if (currentFedFilter === fed.name) {
-                    badge.classList.add('active-filter');
                     badge.style.border = '1px solid var(--primary-cyan)';
                     badge.style.boxShadow = '0 0 10px rgba(0, 242, 255, 0.2)';
                 } else {
@@ -115,13 +160,60 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const renderParleys = (parleys) => {
+    const renderSidebar = (predictions) => {
+        const sidebar = document.getElementById('predictions-sidebar');
+        const listContainer = document.getElementById('predictions-list');
+        const template = document.getElementById('prediction-item-template');
+        const filterBadge = document.getElementById('active-filter-badge');
+        const filterText = filterBadge.querySelector('.filter-text');
+
+        listContainer.innerHTML = '';
+        sidebar.classList.remove('hidden');
+
+        if (currentFedFilter) {
+            filterBadge.classList.remove('hidden');
+            filterText.textContent = currentFedFilter;
+        } else {
+            filterBadge.classList.add('hidden');
+        }
+
+        // Local filtering if needed (though API already filters parleys, it's good to keep sidebar and parleys in sync)
+        const filtered = currentFedFilter
+            ? predictions.filter(p => p.federation === currentFedFilter)
+            : predictions;
+
+        filtered.forEach(pred => {
+            const node = template.content.cloneNode(true);
+            node.querySelector('.row-league').textContent = pred.competition_name;
+            node.querySelector('.row-time').textContent = pred.start_date.split('T')[1].substring(0, 5);
+            node.querySelector('.row-teams').textContent = `${pred.home_team} vs ${pred.away_team}`;
+            node.querySelector('.row-market').textContent = pred.api_market.toUpperCase();
+            node.querySelector('.row-prediction').textContent = pred.prediction;
+            node.querySelector('.row-odds').textContent = `x${(pred.prediction_odds || 0).toFixed(2)}`;
+
+            const statusEl = node.querySelector('.row-status');
+            if (pred.status) {
+                statusEl.textContent = pred.status;
+                statusEl.classList.add(`result-${pred.status.toLowerCase()}`);
+            }
+
+            listContainer.appendChild(node);
+        });
+    };
+
+    document.getElementById('clear-filter').addEventListener('click', () => {
+        currentFedFilter = null;
+        fetchParleys();
+    });
+
+    const renderParleys = (parleys, isSavedView = false) => {
         const parleyTemplate = document.getElementById('parley-template');
         const selectionTemplate = document.getElementById('selection-template');
 
         parleys.forEach(parley => {
             const parleyNode = parleyTemplate.content.cloneNode(true);
-            parleyNode.querySelector('.parley-id').textContent = parley.parley_id;
+            const parleyIdText = isSavedView ? `GUARDADO (${parley.timestamp || ''})` : parley.parley_id;
+            parleyNode.querySelector('.parley-id').textContent = parleyIdText;
             parleyNode.querySelector('.total-odds').textContent = parley.total_odds.toFixed(2);
 
             // Status badge
@@ -137,6 +229,18 @@ document.addEventListener('DOMContentLoaded', () => {
             const card = parleyNode.querySelector('.parley-card');
             if (parley.status === 'WON') card.classList.add('parley-won');
             if (parley.status === 'LOST') card.classList.add('parley-lost');
+
+            // Save button logic
+            const saveBtn = parleyNode.querySelector('.parley-save-btn');
+            if (isSavedView) {
+                saveBtn.parentElement.classList.add('hidden'); // Hide footer in saved view
+            } else {
+                saveBtn.addEventListener('click', () => {
+                    parleyToSave = parley;
+                    modalBetAmount.value = parley.bet_amount;
+                    saveModal.classList.remove('hidden');
+                });
+            }
 
             const selectionsList = parleyNode.querySelector('.selections-list');
 
@@ -165,6 +269,37 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     };
 
+    // Modal Events
+    modalCancel.addEventListener('click', () => {
+        saveModal.classList.add('hidden');
+        parleyToSave = null;
+    });
+
+    modalConfirm.addEventListener('click', async () => {
+        if (!parleyToSave) return;
+        const amount = parseInt(modalBetAmount.value) || 10000;
+
+        // Update local object
+        parleyToSave.bet_amount = amount;
+        parleyToSave.estimated_return = amount * parleyToSave.total_odds;
+
+        try {
+            const response = await fetch('/api/parleys/save', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(parleyToSave)
+            });
+            const result = await response.json();
+            if (result.success) {
+                saveModal.classList.add('hidden');
+                parleyToSave = null;
+                // Optional: Show success toast/glow
+            }
+        } catch (error) {
+            console.error('Error saving parley:', error);
+        }
+    });
+
     refreshBtn.addEventListener('click', () => {
         currentFedFilter = null;
         fetchParleys();
@@ -174,18 +309,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (currentMode === mode) return;
         currentMode = mode;
 
-        tabAll.classList.remove('active');
-        tabPremium.classList.remove('active');
-        tabSafe.classList.remove('active');
-
+        [tabAll, tabPremium, tabSafe, tabDaily, tabSaved].forEach(t => t.classList.remove('active'));
         activeTab.classList.add('active');
-        fetchParleys();
+
+        if (mode === 'saved') {
+            fetchSavedParleys();
+        } else {
+            fetchParleys();
+        }
     }
 
     tabAll.addEventListener('click', () => switchTab('all', tabAll));
     tabPremium.addEventListener('click', () => switchTab('premium', tabPremium));
     tabSafe.addEventListener('click', () => switchTab('safe', tabSafe));
+    tabDaily.addEventListener('click', () => switchTab('daily', tabDaily));
+    tabSaved.addEventListener('click', () => switchTab('saved', tabSaved));
 
     // Initial load
     fetchParleys();
+
+    updateResultsBtn.addEventListener('click', () => {
+        if (currentMode === 'saved') {
+            fetchSavedParleys();
+        } else {
+            fetchParleys(true);
+        }
+    });
 });

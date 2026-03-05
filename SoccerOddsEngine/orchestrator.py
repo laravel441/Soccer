@@ -1,3 +1,4 @@
+import os
 import json
 import random
 import schedule
@@ -25,6 +26,7 @@ class Parley(BaseModel):
     status: str = "PENDING"     # WON, LOST, PENDING
     bet_amount: float = 10000
     estimated_return: float = 0.0
+    timestamp: str = ""
 
 class MarketSnapshot(BaseModel):
     timestamp: str
@@ -35,47 +37,101 @@ class SoccerOddsOrchestrator:
         self.api_client = FootballAPIClient()
         self.market_cache = None
 
-    def scan_markets(self, date: str = None):
+    def scan_markets(self, date: str = None, force_refresh: bool = False):
         """Scans multiple top markets for a specific date (YYYY-MM-DD)."""
         bogota_tz = timezone(timedelta(hours=-5))
         now_bogota = datetime.now(timezone.utc).astimezone(bogota_tz)
         print(f"[{now_bogota}] Starting scan for date: {date}...")
         
         markets = ["classic", "btts", "over_under_25"]
+        raw_fixtures = []
+        scan_date_str = date if date else now_bogota.strftime("%Y-%m-%d")
+        
+        # Determine the next day in Bogota to catch UTC rollovers (Matches at 7PM-11PM Bogota are next day UTC)
+        scan_datetime = datetime.strptime(scan_date_str, "%Y-%m-%d")
+        tomorrow_date_str = (scan_datetime + timedelta(days=1)).strftime("%Y-%m-%d")
+        
+        # Fetch from both API dates to ensure we have every possible match for the Bogota 24h window
+        for d_str in [scan_date_str, tomorrow_date_str]:
+            for market in markets:
+                fixtures = self.api_client.get_fixtures_today(federation="ALL", market=market, date=d_str, force_refresh=force_refresh)
+                if fixtures:
+                    for f in fixtures:
+                        f["api_market"] = market
+                        raw_fixtures.append(f)
+        
+        # Re-bucket and filter
         all_fixtures = []
-        scan_date = date if date else now_bogota.strftime("%Y-%m-%d")
+        is_today = scan_date_str == now_bogota.strftime("%Y-%m-%d")
+        seen_keys = set()
+
+        for f in raw_fixtures:
+            key = (f.get("id"), f.get("api_market"))
+            if key in seen_keys:
+                continue
+            seen_keys.add(key)
+
+            try:
+                start_str = f.get("start_date", "")
+                if not start_str:
+                    continue
+                
+                # API yields UTC time. Convert to Bogota for comparison.
+                dt_utc = datetime.strptime(start_str, "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+                dt_bogota = dt_utc.astimezone(bogota_tz)
+                
+                # Rule 2: Validation of matching the selected day
+                if dt_bogota.strftime("%Y-%m-%d") != scan_date_str:
+                    continue
+                
+                # Pre-calculate prediction_odds for the UI
+                pred_key = f.get("prediction")
+                odds_dict = f.get("odds", {})
+                f["prediction_odds"] = float(odds_dict.get(pred_key, 1.0)) if pred_key in odds_dict else 1.0
+                
+                all_fixtures.append(f)
+            except Exception as e:
+                print(f"Error processing fixture {f.get('id')}: {e}")
+                continue
         
-        for market in markets:
-            fixtures = self.api_client.get_fixtures_today(federation="ALL", market=market, date=scan_date)
-            # Make sure we don't accidentally drop matches due to UTC rollover
-            filtered_fixtures = fixtures if fixtures else []
-            
-            # Add market tag to each fixture for identification
-            for f in filtered_fixtures:
-                f["api_market"] = market
-            all_fixtures.extend(filtered_fixtures)
-        
-        bogota_tz = timezone(timedelta(hours=-5))
         self.market_cache = MarketSnapshot(
             timestamp=datetime.now(timezone.utc).astimezone(bogota_tz).isoformat(),
             fixtures=all_fixtures
         )
-        print(f"[{datetime.now()}] Scan complete. {len(all_fixtures)} entries found for {scan_date}.")
+        print(f"[{datetime.now()}] Scan complete. {len(all_fixtures)} entries found for {scan_date_str}.")
 
     def filter_value_bets(self):
         """Simple model to simulate value bet filtering."""
         return self.market_cache.fixtures
 
-    def generate_parleys(self, date: str = None, bet_amount: float = 10000, mode: str = 'all', federation_filter: str = None) -> List[Parley]:
+    def generate_parleys(self, date: str = None, bet_amount: float = 10000, mode: str = 'all', federation_filter: str = None, force_refresh: bool = False, show_all: bool = False) -> List[Parley]:
         """Generates 10 optimized parleys for a specific date."""
-        # Always re-scan if a specific date is requested or cache is empty
-        if not self.market_cache or date:
-            self.scan_markets(date=date)
+        # Always re-scan if a specific date is requested, cache is empty, or force_refresh is True
+        # Note: We do NOT re-scan purely because of show_all anymore, we use the in-memory cache.
+        if not self.market_cache or date or force_refresh:
+            self.scan_markets(date=date, force_refresh=force_refresh)
 
         fixtures = self.filter_value_bets()
         if not fixtures:
             print("No fixtures found to generate parleys.")
             return []
+
+        # In-memory filtering by time if NOT show_all (upcoming only)
+        bogota_tz = timezone(timedelta(hours=-5))
+        now_bogota = datetime.now(timezone.utc).astimezone(bogota_tz)
+        is_today = (date == now_bogota.strftime("%Y-%m-%d")) or (date is None)
+
+        if is_today and not show_all:
+            filtered = []
+            for f in fixtures:
+                try:
+                    dt_utc = datetime.strptime(f["start_date"], "%Y-%m-%dT%H:%M:%S").replace(tzinfo=timezone.utc)
+                    dt_bogota = dt_utc.astimezone(bogota_tz)
+                    if dt_bogota >= now_bogota:
+                        filtered.append(f)
+                except:
+                    continue
+            fixtures = filtered
             
         if federation_filter:
             fixtures = [f for f in fixtures if str(f.get("federation", "")).lower() == federation_filter.lower()]
@@ -83,7 +139,7 @@ class SoccerOddsOrchestrator:
                 print(f"No fixtures found for federation: {federation_filter}")
                 return []
             
-        if mode in ['premium', 'safe']:
+        if mode == 'premium':
             top_leagues = [
                 "premier league", "primera division", "serie a", "bundesliga", "ligue 1", 
                 "uefa champions league", "uefa europa league", "euro championship", 
@@ -96,6 +152,7 @@ class SoccerOddsOrchestrator:
                 return []
                 
         if mode == 'safe':
+            # "Safe Strategy" takes matches from ALL leagues but applies strict safety filters
             safe_fixtures = []
             for f in fixtures:
                 market = f.get("api_market", "classic")
@@ -109,9 +166,9 @@ class SoccerOddsOrchestrator:
                         prediction = new_pred
                         f["prediction"] = prediction # Update inline for downstream
                         
-                # Filter by Odds Range (Increased bounds for better return)
+                # Filter by Odds Range (Strict safety: 1.15 to 1.60 instead of 1.85)
                 odds = float(odds_dict.get(prediction, 1.0))
-                if 1.15 <= odds <= 1.85:
+                if 1.15 <= odds <= 1.60:
                     safe_fixtures.append(f)
                     
             fixtures = safe_fixtures
@@ -329,19 +386,52 @@ class SoccerOddsOrchestrator:
         print(json.dumps(output, indent=2))
         return output
 
+    def save_parley(self, parley_data: dict):
+        """Saves a parley to saved_parleys.json."""
+        storage_path = os.path.join(os.path.dirname(__file__), "saved_parleys.json")
+        saved = []
+        if os.path.exists(storage_path):
+            try:
+                with open(storage_path, "r", encoding="utf-8") as f:
+                    saved = json.load(f)
+            except:
+                saved = []
+        
+        # Add to beginning of list
+        bogota_tz = timezone(timedelta(hours=-5))
+        parley_data["timestamp"] = datetime.now(bogota_tz).strftime("%Y-%m-%d %H:%M")
+        saved.insert(0, parley_data)
+        
+        with open(storage_path, "w", encoding="utf-8") as f:
+            json.dump(saved, f, indent=2, ensure_ascii=False)
+        return True
+
+    def get_saved_parleys(self) -> List[Parley]:
+        """Retrieves and verifies all saved parleys."""
+        storage_path = os.path.join(os.path.dirname(__file__), "saved_parleys.json")
+        if not os.path.exists(storage_path):
+            return []
+            
+        try:
+            with open(storage_path, "r", encoding="utf-8") as f:
+                saved_dicts = json.load(f)
+        except:
+            return []
+            
+        # Convert to Pydantic models
+        parleys = []
+        for d in saved_dicts:
+            try:
+                parleys.append(Parley(**d))
+            except Exception as e:
+                print(f"Error parsing saved parley: {e}")
+        
+        # Trigger verification against CURRENT cache (matches may have finished)
+        return self.verify_results(parleys)
+
 def main():
     orchestrator = SoccerOddsOrchestrator()
-    
-    # Run once immediately for validation
     orchestrator.run_morning_workflow()
-
-    # Schedule the morning scan (e.g., every day at 08:00)
-    # scan_time = os.getenv("MORNING_SCAN_TIME", "08:00")
-    # schedule.every().day.at(scan_time).do(orchestrator.run_morning_workflow)
-
-    # while True:
-    #     schedule.run_pending()
-    #     time.sleep(60)
 
 if __name__ == "__main__":
     main()

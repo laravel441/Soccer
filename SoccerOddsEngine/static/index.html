@@ -64,9 +64,11 @@
         </section>
 
         <div class="tabs-container">
-            <button class="tab-btn active" id="tab-all">TODOS LOS TORNEOS</button>
+            <button class="tab-btn active" id="tab-all">PRÓXIMOS (TODOS)</button>
             <button class="tab-btn" id="tab-premium">LIGAS TOP UEFA 👑</button>
             <button class="tab-btn" id="tab-safe">ESTRATEGIA SEGURA 🛡️</button>
+            <button class="tab-btn" id="tab-daily">PARTIDOS DEL DÍA 📅</button>
+            <button class="tab-btn" id="tab-saved">MIS PARLEYS 📊</button>
         </div>
 
         <div class="controls">
@@ -80,6 +82,10 @@
             </div>
             <button id="refresh-btn" class="btn-primary">
                 <span class="btn-text">EJECUTAR ESCANEO</span>
+                <div class="scan-line"></div>
+            </button>
+            <button id="update-results-btn" class="btn-secondary">
+                <span class="btn-text">ACTUALIZAR RESULTADOS (API)</span>
                 <div class="scan-line"></div>
             </button>
         </div>
@@ -132,8 +138,23 @@
             </div>
         </div>
 
-        <div id="parleys-grid" class="parleys-container">
-            <!-- Parleys will be injected here -->
+        <div class="content-wrapper">
+            <div id="parleys-grid" class="parleys-container">
+                <!-- Parleys will be injected here -->
+            </div>
+
+            <aside id="predictions-sidebar" class="sidebar glass hidden">
+                <div class="sidebar-header">
+                    <h3>PANEL DE PREDICCIONES</h3>
+                    <div id="active-filter-badge" class="filter-badge hidden">
+                        <span class="filter-text"></span>
+                        <button id="clear-filter" class="btn-clear">×</button>
+                    </div>
+                </div>
+                <div id="predictions-list" class="predictions-list">
+                    <!-- Individual predictions will be injected here -->
+                </div>
+            </aside>
         </div>
     </main>
 
@@ -157,6 +178,9 @@
             <div class="selections-list">
                 <!-- Selections will be injected here -->
             </div>
+            <div class="parley-footer">
+                <button class="btn-save parley-save-btn">GUARDAR PARLEY</button>
+            </div>
         </div>
     </template>
 
@@ -176,6 +200,37 @@
             </div>
         </div>
     </template>
+
+    <template id="prediction-item-template">
+        <div class="prediction-row glass-mini">
+            <div class="row-header">
+                <span class="row-league"></span>
+                <span class="row-time"></span>
+            </div>
+            <div class="row-teams"></div>
+            <div class="row-details">
+                <span class="row-market"></span>
+                <span class="row-prediction"></span>
+                <span class="row-odds"></span>
+                <span class="row-status"></span>
+            </div>
+        </div>
+    </template>
+
+    <div id="save-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h3 class="cyan">GUARDAR PARLEY</h3>
+            <p>Ingresa el monto real apostado para calcular tu retorno exacto:</p>
+            <div class="modal-input-group">
+                <label for="modal-bet-amount">MONTO DE APUESTA (COP $):</label>
+                <input type="number" id="modal-bet-amount" value="10000" min="1000" step="1000">
+            </div>
+            <div class="modal-actions">
+                <button id="modal-cancel" class="btn-secondary">CANCELAR</button>
+                <button id="modal-confirm" class="btn-primary">CONFIRMAR Y GUARDAR</button>
+            </div>
+        </div>
+    </div>
 
     <script src="app.js"></script>
 </body>

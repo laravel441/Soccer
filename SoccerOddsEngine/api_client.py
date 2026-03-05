@@ -20,14 +20,14 @@ class FootballAPIClient:
             "x-rapidapi-host": self.host
         }
 
-    def get_fixtures_today(self, federation: str = "ALL", market: str = "classic", date: str = None):
+    def get_fixtures_today(self, federation: str = "ALL", market: str = "classic", date: str = None, force_refresh: bool = False):
         """Fetch fixtures and predictions from the Football Prediction API for a specific date."""
         bogota_tz = timezone(timedelta(hours=-5))
         params_date = date if date else datetime.now(timezone.utc).astimezone(bogota_tz).strftime("%Y-%m-%d")
         
         # 1. Check local cache
         cache_file = os.path.join(CACHE_DIR, f"{params_date}_{federation}_{market}.json")
-        if os.path.exists(cache_file):
+        if os.path.exists(cache_file) and not force_refresh:
             print(f"[CACHE HIT] Returning local data for {params_date} - {federation} - {market} (0 API cost)")
             try:
                 with open(cache_file, "r", encoding="utf-8") as f:
