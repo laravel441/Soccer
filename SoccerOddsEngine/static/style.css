@@ -570,6 +570,66 @@ footer {
     border-bottom: 1px solid var(--glass-border);
 }
 
+.sidebar-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.btn-icon {
+    background: rgba(0, 242, 255, 0.1);
+    border: 1px solid var(--glass-border);
+    color: var(--primary-cyan);
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s;
+}
+
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--glass-border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.8rem;
+    font-family: 'Orbitron', sans-serif;
+    color: var(--text-dim);
+}
+
+.btn-page {
+    background: rgba(0, 242, 255, 0.05);
+    border: 1px solid var(--glass-border);
+    color: var(--primary-cyan);
+    padding: 0.3rem 0.8rem;
+    cursor: pointer;
+    border-radius: 4px;
+    font-family: 'Orbitron', sans-serif;
+    transition: 0.2s;
+}
+
+.btn-page:hover:not(:disabled) {
+    background: var(--primary-cyan);
+    color: black;
+    box-shadow: 0 0 8px var(--primary-cyan);
+}
+
+.btn-page:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    border-color: var(--text-dim);
+}
+
+#page-info {
+    min-width: 80px;
+    text-align: center;
+}
+
 .sidebar-header h3 {
     font-family: 'Orbitron', sans-serif;
     font-size: 0.9rem;

@@ -1,0 +1,98 @@
+[
+  {
+    "start_date": "2026-03-07T01:00:00",
+    "last_update_at": "2026-03-06T11:58:52.727035",
+    "home_team": "Venados",
+    "competition_name": "Liga de Expansion MX",
+    "away_team": "Correcaminos UAT",
+    "market": "classic",
+    "competition_cluster": "Mexico",
+    "prediction": "1",
+    "status": "pending",
+    "federation": "CONCACAF",
+    "is_expired": false,
+    "id": 394589,
+    "season": "2026 - Clausura",
+    "result": "",
+    "odds": {
+      "1": 1.466,
+      "X": 4.276,
+      "2": 5.144,
+      "1X": 1.118,
+      "X2": 2.406,
+      "12": 1.166
+    }
+  },
+  {
+    "start_date": "2026-03-07T00:30:00",
+    "last_update_at": "2026-03-06T11:58:52.727035",
+    "home_team": "Delfin Manta",
+    "competition_name": "Serie A",
+    "away_team": "Guayaquil City",
+    "market": "classic",
+    "competition_cluster": "Ecuador",
+    "prediction": "1X",
+    "status": "pending",
+    "federation": "CONMEBOL",
+    "is_expired": false,
+    "id": 394553,
+    "season": "2026",
+    "result": "",
+    "odds": {
+      "1": 2.318,
+      "X": 2.922,
+      "2": 3.098,
+      "1X": 1.27,
+      "X2": 1.586,
+      "12": 1.346
+    }
+  },
+  {
+    "start_date": "2026-03-07T01:30:00",
+    "last_update_at": "2026-03-06T11:58:52.727035",
+    "home_team": "Deportivo Cali",
+    "competition_name": "Categoria Primera A",
+    "away_team": "Once Caldas",
+    "market": "classic",
+    "competition_cluster": "Colombia",
+    "prediction": "1X",
+    "status": "pending",
+    "federation": "CONMEBOL",
+    "is_expired": false,
+    "id": 394545,
+    "season": "2026 - Apertura",
+    "result": "",
+    "odds": {
+      "1": 2.252,
+      "X": 3.11,
+      "2": 3.174,
+      "1X": 1.306,
+      "X2": 1.582,
+      "12": 1.316
+    }
+  },
+  {
+    "start_date": "2026-03-07T01:00:00",
+    "last_update_at": "2026-03-06T11:58:52.727035",
+    "home_team": "Mazatlan",
+    "competition_name": "Liga MX",
+    "away_team": "Leon",
+    "market": "classic",
+    "competition_cluster": "Mexico",
+    "prediction": "2",
+    "status": "pending",
+    "federation": "CONCACAF",
+    "is_expired": false,
+    "id": 394587,
+    "season": "2026 - Clausura",
+    "result": "",
+    "odds": {
+      "1": 3.042,
+      "X": 3.472,
+      "2": 2.18,
+      "1X": 1.612,
+      "X2": 1.336,
+      "12": 1.27
+    }
+  }
+]

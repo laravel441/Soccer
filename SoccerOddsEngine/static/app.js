@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentFedFilter = null;
     let allData = null; // Store full response for local filtering
 
+    // Pagination state
+    let currentPage = 1;
+    const itemsPerPage = 10;
+    let sidebarPredictions = [];
+
     // Set default date to today in Bogota timezone
     const now = new Date();
     const formatter = new Intl.DateTimeFormat('en-CA', {
@@ -177,12 +182,25 @@ document.addEventListener('DOMContentLoaded', () => {
             filterBadge.classList.add('hidden');
         }
 
-        // Local filtering if needed (though API already filters parleys, it's good to keep sidebar and parleys in sync)
-        const filtered = currentFedFilter
+        // Apply federation filter locally
+        sidebarPredictions = currentFedFilter
             ? predictions.filter(p => p.federation === currentFedFilter)
             : predictions;
 
-        filtered.forEach(pred => {
+        // Pagination calculations
+        const totalPages = Math.ceil(sidebarPredictions.length / itemsPerPage) || 1;
+        if (currentPage > totalPages) currentPage = totalPages;
+
+        const start = (currentPage - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+        const pageItems = sidebarPredictions.slice(start, end);
+
+        // Update pagination UI
+        document.getElementById('page-info').textContent = `Pág. ${currentPage} / ${totalPages}`;
+        document.getElementById('prev-page').disabled = currentPage <= 1;
+        document.getElementById('next-page').disabled = currentPage >= totalPages;
+
+        pageItems.forEach(pred => {
             const node = template.content.cloneNode(true);
             node.querySelector('.row-league').textContent = pred.competition_name;
             node.querySelector('.row-time').textContent = pred.start_date.split('T')[1].substring(0, 5);
@@ -200,6 +218,22 @@ document.addEventListener('DOMContentLoaded', () => {
             listContainer.appendChild(node);
         });
     };
+
+    // Pagination Listeners
+    document.getElementById('prev-page').addEventListener('click', () => {
+        if (currentPage > 1) {
+            currentPage--;
+            renderSidebar(allData.all_predictions);
+        }
+    });
+
+    document.getElementById('next-page').addEventListener('click', () => {
+        const totalPages = Math.ceil(sidebarPredictions.length / itemsPerPage);
+        if (currentPage < totalPages) {
+            currentPage++;
+            renderSidebar(allData.all_predictions);
+        }
+    });
 
     document.getElementById('clear-filter').addEventListener('click', () => {
         currentFedFilter = null;
@@ -335,4 +369,118 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchParleys(true);
         }
     });
+
+    const downloadSidebarAsPDF = async () => {
+        const btn = document.getElementById('download-sidebar-btn');
+        const pdfIconSvg = `<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>`;
+
+        btn.textContent = '...';
+        btn.disabled = true;
+
+        try {
+            const { jsPDF } = window.jspdf;
+
+            // Build a hidden off-screen container with ALL predictions (no pagination)
+            const container = document.createElement('div');
+            container.style.cssText = `
+                position: fixed; top: -9999px; left: 0;
+                width: 380px; padding: 20px;
+                background: #0d1117;
+                font-family: 'Rajdhani', sans-serif;
+                color: #e0e0e0;
+                z-index: -1;
+            `;
+
+            // Header
+            const date = document.getElementById('scan-date').value;
+            container.innerHTML = `
+                <div style="margin-bottom:16px; border-bottom:1px solid #00f2ff44; padding-bottom:12px;">
+                    <h2 style="margin:0; font-family:'Orbitron',sans-serif; font-size:14px; color:#00f2ff; letter-spacing:2px;">PANEL DE PREDICCIONES</h2>
+                    <p style="margin:4px 0 0; font-size:11px; color:#8899aa;">Fecha: ${date} &nbsp;|&nbsp; Total: ${sidebarPredictions.length} predicciones</p>
+                </div>
+            `;
+
+            // All predictions rows
+            sidebarPredictions.forEach((pred, i) => {
+                const time = pred.start_date.split('T')[1].substring(0, 5);
+                const odds = (pred.prediction_odds || 0).toFixed(2);
+                const status = pred.status || 'PENDING';
+                const statusColor = status === 'won' ? '#00f2ff' : status === 'lost' ? '#ff4444' : '#f4d03f';
+
+                container.innerHTML += `
+                    <div style="border:1px solid #1a2a3a; border-radius:6px; padding:8px 10px; margin-bottom:6px; background:rgba(0,242,255,0.04);">
+                        <div style="display:flex; justify-content:space-between; font-size:10px; color:#8899aa; margin-bottom:3px;">
+                            <span>${pred.competition_name}</span>
+                            <span>${time}</span>
+                        </div>
+                        <div style="font-size:12px; font-weight:600; margin-bottom:4px;">${pred.home_team} vs ${pred.away_team}</div>
+                        <div style="display:flex; gap:8px; align-items:center; font-size:11px;">
+                            <span style="background:#1a2a3a; padding:2px 6px; border-radius:3px;">${(pred.api_market || '').toUpperCase()}</span>
+                            <span style="color:#00f2ff; font-weight:700;">${pred.prediction}</span>
+                            <span>x${odds}</span>
+                            <span style="margin-left:auto; color:${statusColor}; font-weight:700;">${status.toUpperCase()}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.body.appendChild(container);
+            await new Promise(r => setTimeout(r, 150));
+
+            // Capture the entire tall container
+            const canvas = await html2canvas(container, {
+                backgroundColor: '#0d1117',
+                scale: 2,
+                logging: false,
+                useCORS: true,
+                width: container.offsetWidth,
+                height: container.scrollHeight,
+                windowWidth: container.offsetWidth,
+                windowHeight: container.scrollHeight
+            });
+
+            document.body.removeChild(container);
+
+            // Slice the canvas into A4 pages
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfPageHeight = pdf.internal.pageSize.getHeight();
+
+            // Convert A4 height to canvas pixels
+            const canvasPageHeight = Math.floor((pdfPageHeight * canvas.width) / pdfWidth);
+            let yOffset = 0;
+            let pageCount = 0;
+
+            while (yOffset < canvas.height) {
+                const sliceHeight = Math.min(canvasPageHeight, canvas.height - yOffset);
+                const pageCanvas = document.createElement('canvas');
+                pageCanvas.width = canvas.width;
+                pageCanvas.height = sliceHeight;
+                const ctx = pageCanvas.getContext('2d');
+                ctx.drawImage(canvas, 0, yOffset, canvas.width, sliceHeight, 0, 0, canvas.width, sliceHeight);
+
+                const imgData = pageCanvas.toDataURL('image/jpeg', 0.95);
+                const sliceHeightMM = (sliceHeight * pdfWidth) / canvas.width;
+
+                if (pageCount > 0) pdf.addPage();
+                pdf.addImage(imgData, 'JPEG', 0, 0, pdfWidth, sliceHeightMM);
+
+                yOffset += sliceHeight;
+                pageCount++;
+            }
+
+            const dateStr = new Date().toISOString().split('T')[0];
+            pdf.save(`predicciones_${dateStr}.pdf`);
+
+        } catch (error) {
+            console.error('Error generating PDF:', error);
+            alert('Error al generar el PDF: ' + error.message);
+        } finally {
+            btn.innerHTML = pdfIconSvg;
+            btn.disabled = false;
+        }
+    };
+
+    document.getElementById('download-sidebar-btn').addEventListener('click', downloadSidebarAsPDF);
 });
+

@@ -1,5 +1,114 @@
 [
   {
+    "parley_id": 2,
+    "selections": [
+      {
+        "match_id": 394030,
+        "league": "Italy - Serie C",
+        "teams": "Crotone vs Cavese 1919",
+        "market": "1X2",
+        "selection": "1",
+        "odds": 1.774,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394048,
+        "league": "Switzerland - Swiss Super League",
+        "teams": "Thun vs St. Gallen",
+        "market": "1X2",
+        "selection": "1X",
+        "odds": 1.317,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394032,
+        "league": "Italy - Serie C",
+        "teams": "Team Altamura vs Foggia",
+        "market": "1X2",
+        "selection": "1X",
+        "odds": 1.222,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394043,
+        "league": "Poland - Ekstraklasa",
+        "teams": "Radomiak Radom vs Arka Gdynia",
+        "market": "1X2",
+        "selection": "1",
+        "odds": 1.788,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394029,
+        "league": "Italy - Serie C",
+        "teams": "Casertana vs Salernitana",
+        "market": "1X2",
+        "selection": "2",
+        "odds": 2.16,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394027,
+        "league": "Italy - Serie C",
+        "teams": "Audace Cerignola vs Trapani",
+        "market": "1X2",
+        "selection": "1",
+        "odds": 1.668,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394025,
+        "league": "Italy - Serie C",
+        "teams": "Latina vs Sorrento",
+        "market": "1X2",
+        "selection": "1X",
+        "odds": 1.256,
+        "start_time": "12:00",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394046,
+        "league": "Slovenia - 1. SNL",
+        "teams": "NK Aluminij Kidricevo vs NK Celje",
+        "market": "1X2",
+        "selection": "2",
+        "odds": 1.514,
+        "start_time": "11:30",
+        "result": "PENDING",
+        "score": ""
+      },
+      {
+        "match_id": 394047,
+        "league": "Switzerland - Swiss Super League",
+        "teams": "Basel vs Grasshopper",
+        "market": "1X2",
+        "selection": "1",
+        "odds": 1.602,
+        "start_time": "14:30",
+        "result": "PENDING",
+        "score": ""
+      }
+    ],
+    "total_odds": 56.03,
+    "status": "PENDING",
+    "bet_amount": 10000,
+    "estimated_return": 560300,
+    "timestamp": "2026-03-05 11:05"
+  },
+  {
     "parley_id": 1,
     "selections": [
       {
