@@ -1,0 +1,512 @@
+[
+  {
+    "start_date": "2026-03-11T00:30:00",
+    "last_update_at": "2026-03-10T22:43:20.569190",
+    "field_width": null,
+    "home_team": "Mirassol SP",
+    "home_strength": 2.2732521217019803,
+    "competition_name": "Serie A",
+    "away_team": "Santos SP",
+    "away_strength": 1.963693489265142,
+    "market": "btts",
+    "competition_cluster": "Brazil",
+    "prediction": "yes",
+    "status": "won",
+    "distance_between_teams": 478.0,
+    "federation": "CONMEBOL",
+    "is_expired": true,
+    "stadium_capacity": null,
+    "id": 395218,
+    "season": "2026",
+    "result": "2 - 2",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.543,
+      "no": 0.457
+    },
+    "odds": {
+      "yes": 1.734,
+      "no": 1.992
+    }
+  },
+  {
+    "start_date": "2026-03-11T14:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Lokomotiv Tashkent",
+    "home_strength": 0.8096978670244759,
+    "competition_name": "Super League",
+    "away_team": "Kokand 1912",
+    "away_strength": 0.3250130005200208,
+    "market": "btts",
+    "competition_cluster": "Uzbekistan",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 166.0,
+    "federation": "AFC",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395234,
+    "season": "2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.437,
+      "no": 0.563
+    },
+    "odds": {
+      "yes": 2.193,
+      "no": 1.577
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:45:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": 68.0,
+    "home_team": "Wimbledon",
+    "home_strength": 1.8593285167870803,
+    "competition_name": "League One",
+    "away_team": "Blackpool",
+    "away_strength": 1.4699706005879882,
+    "market": "btts",
+    "competition_cluster": "England",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 323.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395191,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": 100.0,
+    "probabilities": {
+      "yes": 0.519,
+      "no": 0.481
+    },
+    "odds": {
+      "yes": 1.828,
+      "no": 1.882
+    }
+  },
+  {
+    "start_date": "2026-03-11T17:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Orlando Pirates",
+    "home_strength": 1.9999999999999998,
+    "competition_name": "Premier Soccer League",
+    "away_team": "Richards Bay",
+    "away_strength": 0.0,
+    "market": "btts",
+    "competition_cluster": "South Africa",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 485.0,
+    "federation": "CAF",
+    "is_expired": false,
+    "stadium_capacity": 45.0,
+    "id": 395229,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.404,
+      "no": 0.596
+    },
+    "odds": {
+      "yes": 2.906,
+      "no": 1.36
+    }
+  },
+  {
+    "start_date": "2026-03-11T17:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Khor Fakkan Club",
+    "home_strength": 2.9354838709677415,
+    "competition_name": "Pro-League",
+    "away_team": "Dibba Al Fujairah",
+    "away_strength": 1.0601206181681115,
+    "market": "btts",
+    "competition_cluster": "UAE",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 30.0,
+    "federation": "AFC",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395231,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.552,
+      "no": 0.448
+    },
+    "odds": {
+      "yes": 1.592,
+      "no": 2.196
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Jong KAA Gent",
+    "home_strength": 1.810344827586207,
+    "competition_name": "Challenger Pro League",
+    "away_team": "Lommel",
+    "away_strength": 4.101588134925843,
+    "market": "btts",
+    "competition_cluster": "Belgium",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 113.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395194,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.572,
+      "no": 0.428
+    },
+    "odds": {
+      "yes": 1.574,
+      "no": 2.226
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "ZED FC",
+    "home_strength": 1.7433751743375174,
+    "competition_name": "Premier League",
+    "away_team": "Modern Sport FC",
+    "away_strength": 0.46153846153846156,
+    "market": "btts",
+    "competition_cluster": "Egypt",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 6.0,
+    "federation": "CAF",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395224,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.416,
+      "no": 0.584
+    },
+    "odds": {
+      "yes": 2.23,
+      "no": 1.572
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "ENPPI Cairo",
+    "home_strength": 1.551638530287984,
+    "competition_name": "Premier League",
+    "away_team": "Zamalek SC",
+    "away_strength": 3.222272346458723,
+    "market": "btts",
+    "competition_cluster": "Egypt",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 6.0,
+    "federation": "CAF",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395223,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.436,
+      "no": 0.564
+    },
+    "odds": {
+      "yes": 2.144,
+      "no": 1.622
+    }
+  },
+  {
+    "start_date": "2026-03-11T10:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Istanbulspor",
+    "home_strength": 1.3572204125950056,
+    "competition_name": "TFF First League",
+    "away_team": "Amed SFK",
+    "away_strength": 1.4225329214761828,
+    "market": "btts",
+    "competition_cluster": "Turkey",
+    "prediction": "yes",
+    "status": "lost",
+    "distance_between_teams": 26.0,
+    "federation": "UEFA",
+    "is_expired": true,
+    "stadium_capacity": null,
+    "id": 395211,
+    "season": "2025 - 2026",
+    "result": "0 - 4",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.507,
+      "no": 0.493
+    },
+    "odds": {
+      "yes": 1.52,
+      "no": 2.338
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:45:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": 68.0,
+    "home_team": "West Bromwich",
+    "home_strength": 0.7720815318097589,
+    "competition_name": "Championship",
+    "away_team": "Southampton",
+    "away_strength": 3.093846682708835,
+    "market": "btts",
+    "competition_cluster": "England",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 184.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": 26.0,
+    "id": 395188,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": 105.0,
+    "probabilities": {
+      "yes": 0.513,
+      "no": 0.487
+    },
+    "odds": {
+      "yes": 1.686,
+      "no": 2.076
+    }
+  },
+  {
+    "start_date": "2026-03-11T21:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Deportivo Mictlan",
+    "home_strength": 1.9166179906542054,
+    "competition_name": "Liga Nacional",
+    "away_team": "Aurora Guatemala",
+    "away_strength": 0.4531174480425326,
+    "market": "btts",
+    "competition_cluster": "Guatemala",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 93.0,
+    "federation": "CONCACAF",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395225,
+    "season": "2026 - Clausura",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.424,
+      "no": 0.576
+    },
+    "odds": {
+      "yes": 1.972,
+      "no": 1.734
+    }
+  },
+  {
+    "start_date": "2026-03-11T21:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Genesis PN",
+    "home_strength": 1.5312193756124877,
+    "competition_name": "Liga Nacional",
+    "away_team": "Olancho FC",
+    "away_strength": 1.3793103448275863,
+    "market": "btts",
+    "competition_cluster": "Honduras",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 162.0,
+    "federation": "CONCACAF",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395227,
+    "season": "2026 - Clausura",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.534,
+      "no": 0.466
+    },
+    "odds": {
+      "yes": 1.55,
+      "no": 2.257
+    }
+  },
+  {
+    "start_date": "2026-03-11T15:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": 70.0,
+    "home_team": "Buducnost Podgorica",
+    "home_strength": 0.8333333333333334,
+    "competition_name": "Prva Liga",
+    "away_team": "Jedinstvo Bijelo Polje",
+    "away_strength": 0.7499625018749063,
+    "market": "btts",
+    "competition_cluster": "Montenegro",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 77.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": 11.0,
+    "id": 395208,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": 105.0,
+    "probabilities": {
+      "yes": 0.433,
+      "no": 0.567
+    },
+    "odds": {
+      "yes": 2.162,
+      "no": 1.597
+    }
+  },
+  {
+    "start_date": "2026-03-11T19:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Olympic Charleroi",
+    "home_strength": 0.0,
+    "competition_name": "Challenger Pro League",
+    "away_team": "Seraing",
+    "away_strength": 1.5476043085303952,
+    "market": "btts",
+    "competition_cluster": "Belgium",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 77.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395195,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.532,
+      "no": 0.468
+    },
+    "odds": {
+      "yes": 1.644,
+      "no": 2.106
+    }
+  },
+  {
+    "start_date": "2026-03-11T16:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Fylkir Reykjavik",
+    "home_strength": 3.20909004468955,
+    "competition_name": "League Cup",
+    "away_team": "Vestmannaeyjar",
+    "away_strength": 0.893069778518695,
+    "market": "btts",
+    "competition_cluster": "Iceland",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 112.0,
+    "federation": "UEFA",
+    "is_expired": false,
+    "stadium_capacity": null,
+    "id": 395200,
+    "season": "2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.574,
+      "no": 0.426
+    },
+    "odds": {
+      "yes": 1.442,
+      "no": 2.572
+    }
+  },
+  {
+    "start_date": "2026-03-11T13:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": null,
+    "home_team": "Umraniyespor",
+    "home_strength": 0.390625,
+    "competition_name": "TFF First League",
+    "away_team": "Erzurumspor",
+    "away_strength": 1.3222016546409276,
+    "market": "btts",
+    "competition_cluster": "Turkey",
+    "prediction": "yes",
+    "status": "pending",
+    "distance_between_teams": 36.0,
+    "federation": "UEFA",
+    "is_expired": true,
+    "stadium_capacity": null,
+    "id": 395212,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": null,
+    "probabilities": {
+      "yes": 0.531,
+      "no": 0.469
+    },
+    "odds": {
+      "yes": 1.868,
+      "no": 1.822
+    }
+  },
+  {
+    "start_date": "2026-03-11T14:00:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "field_width": 70.0,
+    "home_team": "Sutjeska Niksic",
+    "home_strength": 3.3610364214128574,
+    "competition_name": "Prva Liga",
+    "away_team": "Arsenal Tivat",
+    "away_strength": 0.625,
+    "market": "btts",
+    "competition_cluster": "Montenegro",
+    "prediction": "no",
+    "status": "pending",
+    "distance_between_teams": 43.0,
+    "federation": "UEFA",
+    "is_expired": true,
+    "stadium_capacity": 10.0,
+    "id": 395206,
+    "season": "2025 - 2026",
+    "result": "",
+    "field_length": 105.0,
+    "probabilities": {
+      "yes": 0.436,
+      "no": 0.564
+    },
+    "odds": {
+      "yes": 2.065,
+      "no": 1.655
+    }
+  }
+]

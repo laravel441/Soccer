@@ -1,0 +1,74 @@
+[
+  {
+    "start_date": "2026-03-12T01:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "home_team": "Real Espana",
+    "competition_name": "Liga Nacional",
+    "away_team": "Victoria La Ceiba",
+    "market": "classic",
+    "competition_cluster": "Honduras",
+    "prediction": "1",
+    "status": "pending",
+    "federation": "CONCACAF",
+    "is_expired": false,
+    "season": "2026 - Clausura",
+    "id": 395296,
+    "result": "",
+    "odds": {
+      "1": 1.3,
+      "X": 4.675,
+      "2": 8.212,
+      "1X": 1.048,
+      "X2": 3.075,
+      "12": 1.128
+    }
+  },
+  {
+    "start_date": "2026-03-12T00:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "home_team": "Corinthians SP",
+    "competition_name": "Serie A",
+    "away_team": "Coritiba PR",
+    "market": "classic",
+    "competition_cluster": "Brazil",
+    "prediction": "1",
+    "status": "pending",
+    "federation": "CONMEBOL",
+    "is_expired": false,
+    "season": "2026",
+    "id": 395286,
+    "result": "",
+    "odds": {
+      "1": 1.554,
+      "X": 3.918,
+      "2": 6.124,
+      "1X": 1.118,
+      "X2": 2.36,
+      "12": 1.24
+    }
+  },
+  {
+    "start_date": "2026-03-12T00:30:00",
+    "last_update_at": "2026-03-11T06:42:51.233577",
+    "home_team": "Flamengo RJ",
+    "competition_name": "Serie A",
+    "away_team": "Cruzeiro MG",
+    "market": "classic",
+    "competition_cluster": "Brazil",
+    "prediction": "1",
+    "status": "pending",
+    "federation": "CONMEBOL",
+    "is_expired": false,
+    "season": "2026",
+    "id": 395287,
+    "result": "",
+    "odds": {
+      "1": 1.494,
+      "X": 4.164,
+      "2": 6.638,
+      "1X": 1.102,
+      "X2": 2.524,
+      "12": 1.216
+    }
+  }
+]
